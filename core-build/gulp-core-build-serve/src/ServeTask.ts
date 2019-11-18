@@ -38,6 +38,11 @@ export interface IServeTaskConfig {
   };
 
   /**
+   * Static paths to serve, in addition to the rootFolder
+   */
+  staticPaths?: { path: string, url: string }[];
+
+  /**
    * The path to the page which should open automatically after this task completes. If you prefer no page to be
    * launched, run the build with the "--nobrowser" flag
    */
@@ -116,6 +121,7 @@ export class ServeTask<TExtendedConfig = {}> extends GulpTask<IServeTaskConfig &
     /* tslint:disable:typedef */
     const gulpConnect = require('gulp-connect');
     const open = require('gulp-open');
+    const st = require('st');
     const http = require('http');
     const https = require('https');
     /* tslint:enable:typedef */
@@ -125,11 +131,22 @@ export class ServeTask<TExtendedConfig = {}> extends GulpTask<IServeTaskConfig &
     const portArgumentIndex: number = process.argv.indexOf('--port');
     let { port, initialPage }: IServeTaskConfig = this.taskConfig;
     const { api, hostname }: IServeTaskConfig = this.taskConfig;
-    const { rootPath }: IBuildConfig = this.buildConfig;
+    const { rootPath, staticPaths }: IBuildConfig = this.buildConfig;
     const httpsServerOptions: HttpsType.ServerOptions = this._loadHttpsServerOptions();
 
     if (portArgumentIndex >= 0 && process.argv.length > (portArgumentIndex + 1)) {
       port = Number(process.argv[portArgumentIndex + 1]);
+    }
+
+    const middlewareCollection: Function[] = [
+      this._logRequestsMiddleware,
+      this._enableCorsMiddleware,
+    ];
+    if (staticPaths) {
+      const addStaticPaths: typeof staticPaths = staticPaths instanceof Array ? staticPaths : [staticPaths];
+      for (const stPath of addStaticPaths) {
+        middlewareCollection.push(st({ path: stPath.path, url: stPath.url, dot: true }));
+      }
     }
 
     // Spin up the connect server

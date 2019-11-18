@@ -49,6 +49,29 @@
       "type": "string"
     },
 
+    "staticPaths": {
+      "title": "Static Paths",
+      "description": "Collection of additional static paths to serve",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "url"],
+        "properties": {
+          "path": {
+            "title": "Static Path",
+            "description": "The filesystem path to the files you wish to serve.\nBest as an absolute path, but relative paths are supported.\nRelative paths are relative to the directory where the server was started (usually `process.cwd()`)",
+            "type": "string"
+          },
+          "url": {
+            "title": "URL Path",
+            "description": "The URL path relative to the server (domain) root.\nFor example: in https://localhost:4321/common/temp, the `url` would be '/common/temp'",
+            "type": "string",
+            "pattern": "^([/][^/]+)+"
+          }
+        }
+      }
+    },
+
     "https": {
       "title": "HTTPS Mode",
       "description": "If true, the server should run on HTTPS",
