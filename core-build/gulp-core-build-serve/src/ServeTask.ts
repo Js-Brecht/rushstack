@@ -153,7 +153,7 @@ export class ServeTask<TExtendedConfig = {}> extends GulpTask<IServeTaskConfig &
     gulpConnect.server({
       https: httpsServerOptions,
       livereload: true,
-      middleware: (): Function[] => [this._logRequestsMiddleware, this._enableCorsMiddleware],
+      middleware: (): Function[] => middlewareCollection,
       port: port,
       root: path.join(rootPath, this.taskConfig.rootFolder || ''),
       preferHttp1: true,
